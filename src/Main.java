@@ -1,19 +1,24 @@
+import javax.security.auth.login.Configuration;
 import java.io.File;
-import java.util.Set;
+import java.lang.reflect.Parameter;
+import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
 
 public class Main {
     public static void main(String[] args) {
-        String folderPath = "/Users/user/Desktop";
+        ParametersBag bag = new ParametersBag(args);
+
+        String folderPath = bag.getPath();
+        long sizeLimit = bag.getLimit();
         File file = new File(folderPath);
+        Node root = new Node(file, sizeLimit);
         long start = System.currentTimeMillis();
 
-        FolderSizeCalculator calculator = new FolderSizeCalculator(file);
+        FolderSizeCalculator calculator = new FolderSizeCalculator(root);
         ForkJoinPool pool = new ForkJoinPool();
-        long size = pool.invoke(calculator);
-        System.out.println(size);
+        pool.invoke(calculator);
+        System.out.println(root);
 
-//        System.out.println(getFolderSize(file));
         long duration = (System.currentTimeMillis() - start);
         System.out.println(duration + " ms");
     }
